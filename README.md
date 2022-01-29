@@ -1,2 +1,5 @@
 # slaveholderCongressmenStroke
-This is my visualization of data curated by the Washington Post regarding historical Congressional representation who held slaves and exploration of this exposure with contemporary mortality due to stroke.
+This is my visualization of data curated by the Washington Post regarding historical Congressional representation who held slaves and exploration of this exposure with contemporary mortality due to stroke. The original data source is https://github.com/washingtonpost/data-congress-slaveowners/ for the slaveholder data. The source for stroke mortality data is https://catalog.data.gov/dataset/stroke-mortality-data-among-us-adults-35-by-state-territory-and-county-8fc3c.
+
+Materials hosted in this repo include my tidy dataset of the slaveholder Congressmen as tidyDat.txt, my R code as slaveholderCongressmanStroke.Rmd, my rendered html as slaveholderCongressmanStroke.html, and my documentation of considerations for reproducibility as final.Rpres. I welcome feedback on any aspect of this work. This work is submitted in partial fulfillment of requirements for the Developing Data Products MOOC hosted by Johns Hopkins University and in observation of Black History Month in 2022 observed in the United States of America.
+
