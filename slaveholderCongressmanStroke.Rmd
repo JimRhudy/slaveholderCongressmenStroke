@@ -1,9 +1,21 @@
 ---
-title: "Historical Slaveholder Congressional Representation and Contemporary State-Level Stroke Mortality"
+title: Historical Slaveholder Congressional Representation and Contemporary State-Level
+  Stroke Mortality
 author: "Jim Rhudy"
-date: "1/28/2022"
-output: html_document
+date: "1/29/2022"
+output: github_document
 runtime: shiny
+resource_files:
+- stroke.csv
+- tidyDat.txt
+- final.Rpres
+- final.md
+- poly.shp
+- final.md
+- final.Rpres
+- tidyDat.txt
+- tl_2021_us_state.shp
+- joinStroke.csv
 ---
 
 ```{r setup, include=FALSE}
@@ -14,11 +26,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 This work is submitted in partial fulfillment of requirements for the Developing Data Products massively open online course (MOOC), component of the Data Science Specialization, hosted by Johns Hopkins University. The data at hand are the products of a team of journalists at the Washington Post. Detailed background and citation of data sources, along with considerations for reproducibility of my transformation from raw to tidy data, are available in the accompanying final.Rpres document in my project Github repo. Throughout my emphasis will be on reproducibility of my findings.
 
-The unjust practice of enslaving humans for forced labor has been tragically with us since the beginning of recorded history. The history of colonization of the American continent is no exception. This analysis was mindfully begun during the Dr. Martin Luther King, Jr., holiday weekend of 2022, and was completed and is submitted in mindful anticipation of observance of Black History Month 2022 in the USA. 
+The unjust practice of enslaving humans for forced labor has been tragically with us since the beginning of recorded history. The history of colonization of the American continent is no exception. This analysis was mindfully begun during the Dr. Martin Luther King, Jr., holiday weekend of 2022, and was completed and is submitted in mindful anticipation of observance of Black History Month 2022 in the USA. The twofold purpose of this submission is to (1) demonstrate how open-source software and public-domain data can be used to answer important questions and (2) offer my perspective on an important and timely issue as a scientist and native of the American Deep South.
 
-The twofold purpose of this submission is to (1) demonstrate how open-source software and public-domain data can be used to answer important questions and (2) offer my perspective on an important and timely issue from my status as a scientist and an enlightened native of the American Deep South.
-
-Readers who are interested solely in peer review of my web application may scroll down, noting visualization of my intermediate data products, to the section labelled "Embedded Shiny Web Application". You will find my tidy data posted in my Github repo. Readers who are not fluent in R, or do not need to consider reproducibility, may skip my code chunks without missing anything. Readers who are fluent in R and wish to consider reproducibility are welcome to fork my repo and proceed; all I ask is that you inform me that you have done so, and please feel free to push your work and share it! Please also go to the Washington Post source publication and data. This project is a splendid example of scholarly journalism.
+Readers interested solely in peer review of my web application may scroll down, noting visualization of my intermediate data products, to the section labelled "Embedded Shiny Web Application". You will find my tidy data posted in my Github repo. Readers who are not fluent in R, or do not need to consider reproducibility, may skip my code chunks without missing anything. Readers who are fluent in R and wish to consider reproducibility are welcome to fork my repo and proceed; all I ask is that you inform me that you have done so, and please feel free to push your work and share it! Please also go to the Washington Post source publication and data. This project is a splendid example of scholarly journalism, among many others hosted by this newspaper.
 
 ## For Reviewers and Interested Readers from beyond the USA
 
@@ -26,25 +36,18 @@ The USA is governed at the federal level, and the states are represented, by thr
 
 ## Data Preprocessing
 
-The raw data curated by the Washington Post team require preprocessing to enable analysis and plotting. This was accomplished as follows:
+The raw data curated by the Washington Post team require preprocessing, accomplished as follows:
 
 ```{r data preprocessing, message=FALSE, warning=FALSE}
-
-setwd("C:/Users/Jim/Desktop/Rwork/jhuDataScienceFund/ddp/ddp")
-
+# setwd locally in toolbar; run ls()
 rawDat<-read.csv(file='slaveowners.csv', header=TRUE, sep=',')
-
 library(tidyverse)
-
-tidyDat<-rawDat %>% select(bioguide, states_served, congresses_served, is_slaveholder) %>% filter(congresses_served>0) %>% separate(col=congresses_served, into=letters, sep=',') %>% pivot_longer(letters, names_to = "Which") %>% filter(value>0) %>% select(-Which) %>% rename(Congress=value) %>% group_by(Congress, states_served, is_slaveholder) %>% summarize(count=n()) %>% mutate(Congress=as.numeric(Congress)) 
-
-head(tidyDat)
-
+tidyDat<-rawDat %>% select(bioguide, states_served, congresses_served, is_slaveholder) %>% filter(congresses_served>0) %>% separate(col=congresses_served, into=letters, sep=',') %>% pivot_longer(letters, names_to = "Which") %>% filter(value>0) %>% select(-Which) %>% rename(Congress=value) %>% group_by(Congress, states_served, is_slaveholder) %>% summarize(count=n()) %>% mutate(Congress=as.numeric(Congress)) # head(tidyDat)
 ```
 
 ## Scatter Pie map for Bird's-Eye View of Data
 
-The map below will orient the reader to a bird's-eye view of the cumulative historic representation in Congress by members who either held slaves, did not hold slaves, or whose status on slave ownership is unknown. The appearance of the map is the result of my compromise of cartographic best practices with my intent to convey a message. The range of state-level Congressional representation is from 70 to 2602 member-Congresses. This range cannot be symbolized satisfactorily on a map without mathematical transformation. For this reason I undertook a square-root transformation and experimented with a range of denominators until I arrived at the formula dividing the square root by 25. This preserves the visual impression that states to the East have high historical representation and states to the West do not. Next, I symbolized the magnitude of each state's historical Congressional representation as the radius of a state-level pie chart and the proportion of that representation who held slaves as the angle of the red-colored wedge within each pie. Finally, I labelled each state by its postal service abbreviation and repelled the label so that the extent of the red wedges would not be obscured. The reader is advised to note that mid-Atlantic, mid-South and Deep South states have the largest red wedges. The hopeful result I intend is that all readers, regardless of familiarity with US history and emergent geography, will understand which states have or have not had high levels of historical Congressional representation with slaveholder sensibilities. 
+The map below will orient the reader to a bird's-eye view of the cumulative historic representation in Congress by members who either held slaves, did not hold slaves, or whose status on slave ownership is unknown. The appearance of the map is the result of my compromise of cartographic best practices with my intent to convey a message. The range of state-level Congressional representation is from 70 to 2602 member-Congresses. This range cannot be symbolized satisfactorily on a map without mathematical transformation. For this reason I employed a square-root transformation and divided the square root by 25. This preserves the visual impression that states to the East have high historical representation and states to the West do not. Next, I symbolized each state's magnitude of historical Congressional representation as the radius of a state-level pie chart and the proportion of that representation who held slaves as the angle of the red-colored wedge within each pie. Finally, I labelled each state by its postal service abbreviation and repelled the label so that the extent of the red wedges would not be obscured. The reader will note that mid-Atlantic, mid-South and Deep South states have the largest red wedges. The hopeful result I intend is that all readers, regardless of familiarity with US history and emergent geography, will understand which states have or have not had high levels of historical Congressional representation with slaveholder sensibilities. 
 
 ```{r map, message=FALSE, warning=FALSE, out.width="100%"}
 # source for states polygons:https://www.census.gov/cgi-bin/geo/shapefiles/index.php?year=2021&layergroup=States+%28and+equivalent%29
@@ -53,14 +56,12 @@ The map below will orient the reader to a bird's-eye view of the cumulative hist
 
 # define states represented by at least one slaveholder congressman
 library(sf)
-poly<-read_sf("C:/Users/Jim/Desktop/Rwork/jhuDataScienceFund/ddp/ddp/tl_2021_us_state/tl_2021_us_state.shp")
+poly<-read_sf("tl_2021_us_state.shp")
 bigstatesList<-tidyDat %>% filter(is_slaveholder=="true") %>% distinct(states_served) 
-slavePoly <- poly %>% filter(STUSPS %in% bigstatesList$states_served) 
-head(slavePoly)
+slavePoly <- poly %>% filter(STUSPS %in% bigstatesList$states_served) # head(slavePoly)
 
 # solve for coordinates of polygon centroids
-polyCent <- st_centroid(slavePoly)
-head(polyCent)
+polyCent <- st_centroid(slavePoly) # head(polyCent)
 
 # prepare data for join with centroids
 mapDat <- tidyDat %>%
@@ -74,15 +75,12 @@ mapDat <- tidyDat %>%
           sumUnknown=sum(unknown, na.rm = TRUE),
           sumTotal=sum(total, na.rm = TRUE)
      ) %>%
-     filter(sumTrue>0) 
-head(mapDat)
+     filter(sumTrue>0) # head(mapDat)
 
 # join mapDat to centroids
-mapDatPoints<-merge(polyCent, mapDat, by.x="STUSPS", by.y="states_served", all.x=TRUE, all.y=TRUE)
-head(mapDatPoints); dim(mapDatPoints)
+mapDatPoints<-merge(polyCent, mapDat, by.x="STUSPS", by.y="states_served", all.x=TRUE, all.y=TRUE) # head(mapDatPoints); dim(mapDatPoints)
 
 ############## prepare data for scatterpie
-
 # prepare data; initialize data frame
 long <- as.numeric(mapDatPoints$INTPTLON)
 lat <- as.numeric(mapDatPoints$INTPTLAT)
@@ -96,27 +94,22 @@ d <- d %>%
      filter(total>5) # %>%  filter out one anomalous row
 
 ############## make scatterpie
-
 library(scatterpie); library(ggrepel)
-
 range(d$total)
 d$radius <- round(sqrt(d$total)/25, digits = 3) # explain square root transformation
 range(d$radius)
-head(d)
-str(d)
+#head(d); str(d)
 
 # visualize data on a map
 state <- map_data("state")
 
-###################
-
 p <- ggplot(state, aes(long, lat, region)) +
 geom_map(map=state, aes(map_id=region), fill=NA, color="black") + 
-coord_quickmap() 
+coord_quickmap() + labs(title="A Bird's-Eye View of Historical Slaveholder Congressional Representation", caption = "Radius of  pies = size of historical representation; angle of red wedges = proportion who ever held slaves.")
 
 p + geom_scatterpie(aes(x=long, y=lat, group=state, r=radius), data=d, cols=c("slaveowner_true", "slaveowner_false", "slaveowner_unknown"), alpha=.8) +
-geom_scatterpie_legend(d$radius, x=-130, y=25) +
-geom_label_repel(aes(x=long, y=lat, group=state, r=radius, label=state, label.size=0.01), data=d, stat='identity')
+#geom_scatterpie_legend(d$radius, x=-130, y=25) +
+geom_label_repel(aes(x=long, y=lat, group=state, r=radius, label=state, label.size=0.01), data=d, stat='identity') + theme(legend.position="none")
 
 ```
 
@@ -129,7 +122,7 @@ Viewing the animation will take about three minutes. Each Congress is displayed 
 ```{r graph, message=FALSE, warning=FALSE, out.width="100%"}
 
 # filter out rows indicating more than one state served
-tidyDat<-tidyDat %>% filter(str_length(states_served)<3, states_served!="OL") %>% glimpse 
+tidyDat<-tidyDat %>% filter(str_length(states_served)<3, states_served!="OL") # %>% glimpse 
 
 # plot animated bargraph
 library(gganimate)
@@ -139,7 +132,6 @@ barAnim<- ggplot(tidyDat, aes(x=factor(states_served), y=count, fill=is_slavehol
 animate(barAnim, nframes = 190, fps = 1, height = 400, width = 1200)
 
 # anim_save("barAnim.gif",animation=barAnim)
-
 ```
 
 ## State-Level Historical Slaveholder Representation and Contemporary Stroke Mortality
@@ -150,14 +142,13 @@ The stroke mortality data at hand are curated as a three-year average as of 2015
 
 # source for stroke data and metadata: https://catalog.data.gov/dataset/stroke-mortality-data-among-us-adults-35-by-state-territory-and-county-8fc3c
 # name of download changed to stroke.csv for ease of manipulation
-stroke<-read.csv("C:/Users/Jim/Desktop/Rwork/jhuDataScienceFund/ddp/ddp/stroke.csv", header = TRUE, sep = ',')
+stroke<-read.csv("stroke.csv", header = TRUE, sep = ',')
 
 # prepare stroke data for join
 stroke<-stroke %>%
      select(LocationAbbr, GeographicLevel, Data_Value, Stratification1, Stratification2, LocationID, Location.1) %>%
      filter(GeographicLevel=="State" & Stratification1=="Overall" & Stratification2=="Overall") %>%
-     arrange(desc(Data_Value)) %>%
-     glimpse
+     arrange(desc(Data_Value)) # %>% glimpse
 # dim(stroke); names(stroke); head(stroke); str(stroke)
 
 # prepare slaveholder data for join
@@ -167,45 +158,40 @@ plotDat<-tidyDat %>%
      mutate(True=ifelse(is_slaveholder=="true", 1, 0)) %>%
      summarise(sumTrue=sum(True), sumCount=sum(count)) %>%
      mutate(propTrue=sumTrue/sumCount) %>%
-     mutate(logPropTrue=round(log(propTrue+1), digits = 3)) %>% # explain log transformation
-     glimpse
+     # explain log transformation
+     mutate(logPropTrue=round(log(propTrue+1), digits = 3)) # %>% glimpse
 # dim(plotDat); names(plotDat); head(plotDat); str(plotDat)
 
 # join data
 joinStroke<-merge(stroke, plotDat, by.x="LocationAbbr", by.y="states_served", all.x=FALSE, all.y=FALSE)
 # head(joinStroke); dim(joinStroke)
-
+# write.csv (joinStroke,'joinStroke.csv')
 ```
 
 ## Render static plot
 
 Inspection of a static scatterplot of state-level contemporary stroke mortality on the y-axis by the logarithm of the proportion of each state's historical Congressional representation who have ever held slaves on the x-axis, overlaid by a regression line with a default 95% confidence interval, yields a strong visual impression of a positive slope, indicating that as historical slaveholder representation increases at the state level, contemporary stroke mortality also increases. 
 
-``` {r static plot}
-
+``` {r static plot, message=FALSE, warning=FALSE}
 pStroke<-ggplot(joinStroke, aes(x=logPropTrue, y=Data_Value, label=LocationAbbr)) + geom_jitter() + geom_smooth(method="lm")
 pStroke
-
 ```
 
 ## Render interactive plot
 
 Inspection of an interactive scatterplot programmed as above but with the added capability that the viewer may hover over each point and identify which state is represented, along with the values on the x and y axes, supports the above interpretation.
 
-``` {r interactive plot}
-
+``` {r interactive plot, message=FALSE, warning=FALSE}
 library(plotly)
 pStrokeLy<-ggplotly(pStroke)
 pStrokeLy
-
 ```
 
 ## Fit, Interpret, and Diagnose Linear Model
 
 The reader will note that the slope and intercept of this model are 150.49 and 66.93, respectively, and that this model explains about 24% of the variability in contemporary stroke mortality among the data at hand. Inspection of the diagnostic plots indicates that the linear model may not be the best fit for these data but let's put this on the back burner for now.
 
-``` {r model}
-
+``` {r model, message=FALSE, warning=FALSE}
 # fit linear model
 fit1<-lm(Data_Value~logPropTrue, data = joinStroke)
 # interpret model
@@ -213,20 +199,18 @@ summary(fit1)
 # diagnose linear model
 par(mfrow=c(2, 2), mar=c(2, 2, 2, 2))
 plot(fit1)
-
 dev.off()
-
 ```
 
 ## Embedded Shiny Web Application
 
-The code below will render a scatterplot of state-level contemporary stroke mortality by log-transformed proportion of Congressional representation who have ever held slaves. By using the mouse to drag a rectangle around all the plotted points, the reader will note that the slope and intercept reproduce exactly the slope and intercept of the model fit1 reported above. If the reader wishes to exclude the states which were never represented by slaveowner Congressmen, he or she may sweep the left border of the rectangle slightly to the right to avoid the stack of points representing zero on the x-axis.  The reader will then note that excluding the states never represented by slaveowner Congressmen, the association between those states with historical slaveowner representation and contemporary stroke mortality grows stronger.
+The code below will render my web application. The app will render a scatterplot of state-level contemporary stroke mortality by log-transformed proportion of Congressional representation who have ever held slaves. By using the mouse to drag a rectangle around all the plotted points, the reader will note that the slope and intercept reproduce exactly the slope and intercept of the model fit1 reported above. If the reader wishes to exclude the states which were never represented by slaveowner Congressmen, he or she may sweep the left border of the rectangle slightly to the right to avoid the stack of points representing zero on the x-axis.  The reader will then note that excluding the states never represented by slaveowner Congressmen, the association between those states with historical slaveowner representation and contemporary stroke mortality grows stronger.
 
-```{r shiny app, message=FALSE, warning=FALSE}
-
+```{r shiny, message=FALSE, warning=FALSE}
 library(shiny)
+shinyApp(
 
-# Define UI for application that draws a scatterplot
+  # Define UI for application that draws a scatterplot
 ui <- fluidPage(
      titlePanel("State Level Contemporary Stroke Mortality by Historical Congressman Slaveholder Status"),
      sidebarLayout(
@@ -237,12 +221,13 @@ ui <- fluidPage(
                textOutput("intOut")
           ),
           mainPanel(
+               h5("The user may draw a rectangle with the mouse to plot any subset; please include at least two points. Note in particular that the stack of points labeled zero on the x axis represent those states with no historical slaveholder Congressional representation; and the complement include those states whose representation has historically included at least one member with slaveholder sensibilities."),
                plotOutput("plot1", brush=brushOpts(
                     id="brushP"
                ))
           )
      )
-)
+),
 
 # Define server logic required to draw a scatterplot
 server <- function(input, output) {
@@ -250,7 +235,7 @@ server <- function(input, output) {
      model <- reactive({
           brushed_data<-brushedPoints(joinStroke, input$brushP, xvar="logPropTrue", yvar="Data_Value")
           if(nrow(brushed_data) < 2){
-               return(NULL) 
+               return(NULL)
           }
           lm(Data_Value ~ logPropTrue, data = brushed_data)
      })
@@ -274,11 +259,10 @@ server <- function(input, output) {
                abline(model(), col="blue", lwd=2)
           }
      })
-}
+},
 
-# Run the application 
-shinyApp(ui = ui, server = server)
-
+  options = list(height = 500)
+)
 ```
 
 ## Conclusion
@@ -287,11 +271,11 @@ I do not intend to teach anyone that stroke mortality is high in the American so
 
 ## On a Professional Note
 
-I have conducted an ordinary least squares analysis on a merged data set from two convenient sources. These skills have been acquired over a decade of study and practice. I have also made it possible for the reader to fit this linear model and replicate my analysis by simply drawing a rectangle over a plot in a web application imbedded in this document. This is a handy superpower which one can use to communicate with one's boss, PhD committee, or promotion and tenure committee. I have done this using only open-source software, data in the public domain, and online resources available at a very modest cost. Most people interested in this kind of analysis will have access to SAS or SPSS but you may wish to work with those who do not. My work will continue to enrich this web app with further capabilities. I welcome your feedback as the work proceeds.
+I have conducted an ordinary least squares regression analysis on a merged data set from two convenient sources. These skills were acquired over a decade of study and practice. I have also made it possible for the reader to fit this linear model and replicate my analysis by simply drawing a rectangle over a plot in a web application embedded in this document. This is a handy superpower which one can use to communicate with one's boss, PhD committee, or promotion and tenure committee. I have done this using only open-source software, data in the public domain, and online resources available at a very modest cost. Most people interested in this kind of analysis will have access to SAS or SPSS but you may wish to work with those who do not. My work will continue to enrich this web app with further capabilities. I welcome your feedback as the work proceeds.
 
 ## On a Personal Note
 
-I happen to be a grandfather and a person of faith whose duty includes love of neighbor. Primarily for these two reasons, but including many others, I believe very deeply that racial reconciliation is in everyone's best interest. Many would wish to approach this by labeling our grandchildren as 'oppressor' or 'oppressed'. I believe this to be a mistake; children will either learn to associate success with guilt or they will learn a convenient excuse not to function. In either case they will not learn to learn; they will learn to despise themselves. It is a sad fact that many racist notions are deeply imbedded in the institutions that shape our common life. Anyone who doubts this or fails to teach it is simply making a different kind of mistake. *There is no one still alive who is responsible* for this sad heritage. Children must be taught this history or it may repeat itself. Let's work together to strike the proper balance.
+I happen to be a grandfather and a person of faith whose duty includes love of neighbor. Primarily for these two reasons, but including many others, I believe very deeply that racial reconciliation is in everyone's best interest. Many would approach this by labeling our grandchildren as 'oppressor' or 'oppressed'. I believe this to be a mistake; children will either learn to associate success with guilt or they will learn a convenient excuse not to function. In either case they will not learn to learn; they will learn to despise themselves. It is a sad fact that many racist notions are deeply embedded in the institutions that shape our common life. Anyone who doubts this or fails to teach it is simply making a different kind of mistake. *There is no one still alive who is responsible* for this sad heritage. Children must be taught this history or it may repeat itself. Let's work together to strike the proper balance.
 
 
 
